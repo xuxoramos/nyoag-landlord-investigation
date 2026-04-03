@@ -208,3 +208,6 @@ __marimo__/
 
 *.csv
 *.parquet
+
+# Keep the data manifest (checksums for reproducibility)
+!data/manifest.json

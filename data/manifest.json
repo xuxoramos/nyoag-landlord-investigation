@@ -1,0 +1,17 @@
+{
+  "generated_utc": "2026-04-03T16:21:11.150868+00:00",
+  "files": [
+    {
+      "file": "hpd_contacts.zip",
+      "sha256": "55ae8296cdd796ab12cfcab100e013b5605a53de5dc83c9b275b649842b25589",
+      "bytes": 17407055,
+      "recorded_utc": "2026-04-03T16:21:11.144964+00:00"
+    },
+    {
+      "file": "hpd_registrations.zip",
+      "sha256": "da95ade5d25f5aea270b0ad03ad912dd353abc1b4f1ff9772ae2320bfdf7faf8",
+      "bytes": 7288536,
+      "recorded_utc": "2026-04-03T16:21:11.150841+00:00"
+    }
+  ]
+}
