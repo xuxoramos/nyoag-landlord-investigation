@@ -49,14 +49,46 @@ This identified **27,008 owners controlling multiple properties** in the target 
 
 ### 3. Harm Score Calculation
 
-Each owner receives a composite harm score built from four weighted components:
+Each owner receives a composite **harm score** that quantifies the overall risk their portfolio poses to tenants. The score is designed to prioritize landlords who cause the most severe, concentrated, widespread, and persistent housing violations — the factors most relevant to an enforcement investigation.
 
-| Component | Weight | Description |
-|-----------|--------|-------------|
-| **Violation Severity** | 40% | Weighted sum of violations — Class C (immediately hazardous) = 5 pts, Class B (hazardous) = 2.5 pts, Class A (non-hazardous) = 1 pt |
-| **Violation Density** | 30% | Total violations per residential unit |
-| **Widespread Harm** | 20% | Fraction of an owner's properties that have violations |
-| **Persistence** | 10% | Fraction of violations that remain unresolved |
+#### Components
+
+The score combines four components, each capturing a distinct dimension of harm:
+
+| Component | Weight | Raw Value | Description |
+|-----------|--------|-----------|-------------|
+| **Violation Severity** | 40% | Weighted sum of all violations | Each violation is assigned a point value based on its HPD class: **Class C** (immediately hazardous) = **5 pts**, **Class B** (hazardous) = **2.5 pts**, **Class A** (non-hazardous) = **1 pt**. This reflects the HPD's own classification system, where Class C violations (e.g., lead paint, no heat/hot water, pest infestations) represent the most urgent threats to tenant health and safety. |
+| **Violation Density** | 30% | Total violations ÷ total residential units | Measures how concentrated violations are relative to the size of a landlord's portfolio. A landlord with 1,000 violations across 100 units is causing more harm per tenant than one with 1,000 violations across 10,000 units. |
+| **Widespread Harm** | 20% | Unique BBLs with violations ÷ total registered properties | Captures how broadly harm is distributed across an owner's portfolio. A score of 1.0 means every registered property has violations; a low score means problems are isolated to a few buildings. Owners whose negligence spans many properties are stronger investigation targets. |
+| **Persistence** | 10% | Unresolved violations ÷ total violations | Measures the fraction of violations that remain open (i.e., not marked "Close" in HPD data). A high persistence score indicates that a landlord is not remedying violations, suggesting willful neglect rather than one-time issues. |
+
+#### Formula
+
+The final harm score is a weighted linear combination:
+
+```
+Harm Score = (Severity Score × 0.4)
+           + (Density Score × 100 × 0.3)
+           + (Widespread Score × 100 × 0.2)
+           + (Persistence Score × 100 × 0.1)
+```
+
+The density, widespread, and persistence components are multiplied by 100 before weighting so that their magnitudes are comparable to the severity score (which is naturally large because it sums point values across thousands of violations). Without this scaling, those three ratios (which range from 0 to ~1) would be dwarfed by severity and would have no meaningful influence on the final ranking.
+
+#### Justification of Component Weights
+
+| Weight | Rationale |
+|--------|-----------|
+| **Severity at 40%** | Violation severity receives the highest weight because the HPD class directly encodes the degree of danger to tenants. Class C violations represent conditions that can cause immediate harm (fire hazards, vermin, loss of essential services). Prioritizing severity ensures the score surfaces landlords whose buildings pose the greatest physical risk. |
+| **Density at 30%** | Density is the second-most important factor because it normalizes for portfolio size. Without it, large landlords would automatically rank highest simply by owning more units. Density ensures that a small slumlord with extreme conditions per unit is not overshadowed by a large owner with moderate per-unit violation rates. |
+| **Widespread Harm at 20%** | This component distinguishes between landlords whose problems are systemic versus those with an isolated problem building. An owner whose violations span most or all of their properties likely has a pattern of neglect — a stronger signal for investigation than a single outlier property. |
+| **Persistence at 10%** | Persistence receives the lowest weight because unresolved status in HPD data may partly reflect administrative lag rather than landlord inaction. Nevertheless, a consistently high open-violation rate still signals a failure to remediate, which is why it is included as a tie-breaking factor. |
+
+#### Design Decisions
+
+- **Why a linear combination?** A linear model is transparent and auditable — every component's contribution to the final score can be traced and explained. This is important for an investigative use case where findings may need to be justified publicly or in legal proceedings.
+- **Why these four dimensions?** Severity, density, spread, and persistence together capture the *what* (how dangerous), *how much* (per tenant), *how broadly* (across properties), and *how long* (unresolved) of housing harm. Each adds information the others do not.
+- **Why multiply ratios by 100?** The severity component naturally produces large values (e.g., 50,000+ for portfolios with thousands of violations). Without rescaling the ratio-based components (which range 0–1), the severity term would dominate entirely, effectively reducing the score to a single-factor metric. The ×100 multiplier brings the components onto a comparable scale so the intended weights are respected.
 
 ## Key Findings
 
